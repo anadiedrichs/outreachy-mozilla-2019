@@ -1,0 +1,127 @@
+---
+title: "Outreachy datascience 2019"
+author: "Ana Laura Diedrichs"
+date: "October 1, 2019"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Dataset
+
+Import the dataset first.
+```{r cars}
+library(readr)
+dataset <- read_csv("dataset.csv")
+
+```
+
+The dataset has `r ncol(dataset)` varibles (columns) and `r nrow(dataset)` observations (rows). 
+
+Let's give a first look:
+
+```{r}
+head(dataset)
+```
+
+The column Id is not a variable for the problem, so I proceed to deleted it.
+
+```{r}
+dataset <- dataset[-1]
+```
+
+```{r}
+library(DataExplorer)
+introduce(dataset) 
+```
+
+Some insights:
+
+* We have some missing values
+* The dataset has a mix of categorical and numerical variables
+* We don't have 
+
+### Missing values 
+
+```{r}
+library(dplyr) # for dataset processing + pipe operator
+
+missing_report <- dataset %>% 
+                  profile_missing() %>% 
+                  filter(num_missing >0) %>%
+                  as_data_frame() %>%
+                  arrange(desc(pct_missing)) #order rows by column pct_missing
+
+missing_report
+```
+
+The first four features listed above, have more than 80% of missing values. I proceed to ignore that features. TODO tell why
+
+```{r}
+drop_columns <- as.character(missing_report$feature[1:4])
+
+drop_columns
+```
+
+```{r}
+dataset <- dataset %>% 
+  select(-one_of(drop_columns)) 
+```
+
+Our dataset has left now four columns/varialbes, 
+
+```{r}
+colnames(dataset)
+ncol(dataset)
+```
+
+
+## Correlation 
+
+I would like to know if we have highly correlated features
+
+### Continuous variables
+
+```{r}
+num_dataset <- dataset %>% 
+  select_if( is.numeric)
+
+plot_correlation(num_dataset, cor_args = list("use" = "pairwise.complete.obs"))
+```
+```{r}
+library(tidyverse)
+cor(num_dataset) %>% # calculate correlations using Pearson
+  as.data.frame() %>%
+  mutate(var1 = rownames(.)) %>%
+  gather(var2, value, -var1) %>%
+  arrange(desc(value)) %>% 
+  group_by(value) %>% 
+  filter(row_number()==1) %>%
+  filter(var1 == "SalePrice")
+
+```
+
+Analysis of predictivity power of categorical variables over SalePrice column.
+
+
+```{r}
+library(SmartEDA)
+ExpCatStat(dataset,Target="SalePrice")
+```
+
+Filter to let only varibles with some predictive power
+
+```{r}
+
+```
+
+### Categorical variables
+
+# Referencias
+
+Leer sobre correlacion https://medium.com/@outside2SDs/an-overview-of-correlation-measures-between-categorical-and-continuous-variables-4c7f85610365
+
