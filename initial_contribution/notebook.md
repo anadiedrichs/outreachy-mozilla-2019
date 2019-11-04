@@ -13,11 +13,6 @@ output:
 
 Import the dataset first.
 
-```r
-library(readr)
-dataset <- read_csv("dataset.csv")
-```
-
 ```
 ## Parsed with column specification:
 ## cols(
@@ -104,23 +99,29 @@ dataset <- dataset[-1]
 
 ```r
 library(DataExplorer)
-introduce(dataset) 
+t(introduce(dataset) )
 ```
 
 ```
-## # A tibble: 1 x 9
-##    rows columns discrete_columns continuous_colu… all_missing_col…
-##   <int>   <int>            <int>            <int>            <int>
-## 1  1460      80               43               37                0
-## # … with 4 more variables: total_missing_values <int>,
-## #   complete_rows <int>, total_observations <int>, memory_usage <dbl>
+##                        [,1]
+## rows                   1460
+## columns                  80
+## discrete_columns         43
+## continuous_columns       37
+## all_missing_columns       0
+## total_missing_values   6965
+## complete_rows             0
+## total_observations   116800
+## memory_usage         745264
 ```
 
 Some insights:
 
 * We have some missing values
 * The dataset has a mix of categorical and numerical variables
-* We don't have 
+* We don't have completed rows, where all the values for the same row are not NULL or NaN or not missing.
+
+As a first step, we are going to analyze the missing values.
 
 ### Missing values 
 
@@ -188,8 +189,9 @@ missing_report
 ## 19 Electrical             1    0.000685
 ```
 
-The first four features listed above, have more than 80% of missing values. I proceed to ignore that features. TODO tell why
+The first four features listed above, have more than 80% of missing values. I proceed to ignore that features because I find it hard to reconstruct them (imputation) with few data.
 
+The columns I'm going to drop are:
 
 ```r
 drop_columns <- as.character(missing_report$feature[1:4])
@@ -201,17 +203,45 @@ drop_columns
 ## [1] "PoolQC"      "MiscFeature" "Alley"       "Fence"
 ```
 
+I drop the columns from the dataset
+
 
 ```r
 dataset <- dataset %>% 
   select(-one_of(drop_columns)) 
 ```
 
-Our dataset has left now four columns/variables, 
+Our dataset has left now four columns/variables, and now we have 76 columns.
+
+
+## Valid variable names
+
+Function make names convert columns names to valid variable names. There are some functions that convert the column name (a string) as a variable, so we want to avoid 
+sintax errors later.
 
 
 ```r
-colnames(dataset)
+new.names <- make.names(colnames(dataset))
+```
+
+
+What are the names that where replaced ?
+
+```r
+colnames(dataset)[!new.names %in% colnames(dataset)]
+```
+
+```
+## [1] "1stFlrSF"  "2ndFlrSF"  "3SsnPorch"
+```
+
+We can see that area some variables names which start with a number. 
+
+So the new names are:
+
+
+```r
+new.names
 ```
 
 ```
@@ -225,48 +255,48 @@ colnames(dataset)
 ## [29] "BsmtQual"      "BsmtCond"      "BsmtExposure"  "BsmtFinType1" 
 ## [33] "BsmtFinSF1"    "BsmtFinType2"  "BsmtFinSF2"    "BsmtUnfSF"    
 ## [37] "TotalBsmtSF"   "Heating"       "HeatingQC"     "CentralAir"   
-## [41] "Electrical"    "1stFlrSF"      "2ndFlrSF"      "LowQualFinSF" 
+## [41] "Electrical"    "X1stFlrSF"     "X2ndFlrSF"     "LowQualFinSF" 
 ## [45] "GrLivArea"     "BsmtFullBath"  "BsmtHalfBath"  "FullBath"     
 ## [49] "HalfBath"      "BedroomAbvGr"  "KitchenAbvGr"  "KitchenQual"  
 ## [53] "TotRmsAbvGrd"  "Functional"    "Fireplaces"    "FireplaceQu"  
 ## [57] "GarageType"    "GarageYrBlt"   "GarageFinish"  "GarageCars"   
 ## [61] "GarageArea"    "GarageQual"    "GarageCond"    "PavedDrive"   
-## [65] "WoodDeckSF"    "OpenPorchSF"   "EnclosedPorch" "3SsnPorch"    
+## [65] "WoodDeckSF"    "OpenPorchSF"   "EnclosedPorch" "X3SsnPorch"   
 ## [69] "ScreenPorch"   "PoolArea"      "MiscVal"       "MoSold"       
 ## [73] "YrSold"        "SaleType"      "SaleCondition" "SalePrice"
 ```
 
+The columns names 3SsnPorch, 1stFlrSF, 2ndFlrSF where replaced by X3SsnPorch, X1stFlrSF, X2ndFlrSF.
+
+So, we renamed the columns of our dataset.
+
+
 ```r
-ncol(dataset)
+colnames(dataset) <- new.names
 ```
-
-```
-## [1] 76
-```
-
 
 ## Correlation 
 
-I would like to know if we have highly correlated features
+I would like to know if we have highly correlated features related with Sales Price.
 
 ### Continuous variables
 
 
 ```r
 num_dataset <- dataset %>% 
-  select_if( is.numeric)
+  select_if( is.numeric) %>% scale()
 
 plot_correlation(num_dataset, cor_args = list("use" = "pairwise.complete.obs"))
 ```
 
-![](notebook_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](notebook_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
 ```r
 library(tidyverse)
 ```
 
 ```
-## ── Attaching packages ──────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+## ── Attaching packages ────────────────────────────────────────────────── tidyverse 1.2.1 ──
 ```
 
 ```
@@ -276,7 +306,7 @@ library(tidyverse)
 ```
 
 ```
-## ── Conflicts ─────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ── Conflicts ───────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
 ```
@@ -302,7 +332,7 @@ cor(num_dataset) %>% # calculate correlations using Pearson
 ##  3 SalePrice GarageCars   0.640
 ##  4 SalePrice GarageArea   0.623
 ##  5 SalePrice TotalBsmtSF  0.614
-##  6 SalePrice 1stFlrSF     0.606
+##  6 SalePrice X1stFlrSF    0.606
 ##  7 SalePrice FullBath     0.561
 ##  8 SalePrice TotRmsAbvGrd 0.534
 ##  9 SalePrice YearBuilt    0.523
@@ -310,6 +340,116 @@ cor(num_dataset) %>% # calculate correlations using Pearson
 ## # … with 23 more rows
 ```
 
+SalePrice and OverallQual
+
+
+```r
+plot(dataset$OverallQual,dataset$SalePrice)
+```
+
+![](notebook_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+
+### SmartEDA package
+
+
+
+The following line create a complited EDA report for the dataset. It took a while to run in a PC celeron computer. The report is saved as 
+
+
+```r
+library(SmartEDA)
+library (ggthemes)
+ExpReport(dataset,Target = "SalePrice",op_file=report_name,Rc="continuous",sc=2,sn=2)
+```
+
+```r
+library(SmartEDA)
+ExpData(dataset,type=2)
+```
+
+```
+##    S.no  Variable Name Variable Type % of Missing No. of Unique values
+## 1     1     MSSubClass       integer            0                   15
+## 2     2      MSZoning*     character            0                    5
+## 3     3    LotFrontage       integer         0.18                  111
+## 4     4        LotArea       integer            0                 1073
+## 5     5        Street*     character            0                    2
+## 6     6      LotShape*     character            0                    4
+## 7     7   LandContour*     character            0                    4
+## 8     8     Utilities*     character            0                    2
+## 9     9     LotConfig*     character            0                    5
+## 10   10     LandSlope*     character            0                    3
+## 11   11  Neighborhood*     character            0                   25
+## 12   12    Condition1*     character            0                    9
+## 13   13    Condition2*     character            0                    8
+## 14   14      BldgType*     character            0                    5
+## 15   15    HouseStyle*     character            0                    8
+## 16   16    OverallQual       integer            0                   10
+## 17   17    OverallCond       integer            0                    9
+## 18   18      YearBuilt       integer            0                  112
+## 19   19   YearRemodAdd       integer            0                   61
+## 20   20     RoofStyle*     character            0                    6
+## 21   21      RoofMatl*     character            0                    8
+## 22   22   Exterior1st*     character            0                   15
+## 23   23   Exterior2nd*     character            0                   16
+## 24   24    MasVnrType*     character         0.01                    5
+## 25   25     MasVnrArea       integer         0.01                  328
+## 26   26     ExterQual*     character            0                    4
+## 27   27     ExterCond*     character            0                    5
+## 28   28    Foundation*     character            0                    6
+## 29   29      BsmtQual*     character         0.03                    5
+## 30   30      BsmtCond*     character         0.03                    5
+## 31   31  BsmtExposure*     character         0.03                    5
+## 32   32  BsmtFinType1*     character         0.03                    7
+## 33   33     BsmtFinSF1       integer            0                  637
+## 34   34  BsmtFinType2*     character         0.03                    7
+## 35   35     BsmtFinSF2       integer            0                  144
+## 36   36      BsmtUnfSF       integer            0                  780
+## 37   37    TotalBsmtSF       integer            0                  721
+## 38   38       Heating*     character            0                    6
+## 39   39     HeatingQC*     character            0                    5
+## 40   40    CentralAir*     character            0                    2
+## 41   41    Electrical*     character            0                    6
+## 42   42      X1stFlrSF       integer            0                  753
+## 43   43      X2ndFlrSF       integer            0                  417
+## 44   44   LowQualFinSF       integer            0                   24
+## 45   45      GrLivArea       integer            0                  861
+## 46   46   BsmtFullBath       integer            0                    4
+## 47   47   BsmtHalfBath       integer            0                    3
+## 48   48       FullBath       integer            0                    4
+## 49   49       HalfBath       integer            0                    3
+## 50   50   BedroomAbvGr       integer            0                    8
+## 51   51   KitchenAbvGr       integer            0                    4
+## 52   52   KitchenQual*     character            0                    4
+## 53   53   TotRmsAbvGrd       integer            0                   12
+## 54   54    Functional*     character            0                    7
+## 55   55     Fireplaces       integer            0                    4
+## 56   56   FireplaceQu*     character         0.47                    6
+## 57   57    GarageType*     character         0.06                    7
+## 58   58    GarageYrBlt       integer         0.06                   98
+## 59   59  GarageFinish*     character         0.06                    4
+## 60   60     GarageCars       integer            0                    5
+## 61   61     GarageArea       integer            0                  441
+## 62   62    GarageQual*     character         0.06                    6
+## 63   63    GarageCond*     character         0.06                    6
+## 64   64    PavedDrive*     character            0                    3
+## 65   65     WoodDeckSF       integer            0                  274
+## 66   66    OpenPorchSF       integer            0                  202
+## 67   67  EnclosedPorch       integer            0                  120
+## 68   68     X3SsnPorch       integer            0                   20
+## 69   69    ScreenPorch       integer            0                   76
+## 70   70       PoolArea       integer            0                    8
+## 71   71        MiscVal       integer            0                   21
+## 72   72         MoSold       integer            0                   12
+## 73   73         YrSold       integer            0                    5
+## 74   74      SaleType*     character            0                    9
+## 75   75 SaleCondition*     character            0                    6
+## 76   76      SalePrice       integer            0                  663
+```
+
+
+
+### Categorical variables
 Analysis of predictivity power of categorical variables over SalePrice column.
 
 
@@ -379,8 +519,8 @@ ExpCatStat(dataset,Target="SalePrice")
 ## 56    BsmtFinSF2 SalePrice      2     601.899   0.954  662        0
 ## 57     BsmtUnfSF SalePrice     10    6054.690   0.188 5958        0
 ## 58   TotalBsmtSF SalePrice     10    6319.703   0.001 5958        0
-## 59      1stFlrSF SalePrice     10    6246.913   0.005 5958        0
-## 60      2ndFlrSF SalePrice      5    3005.856   0.000 2648        0
+## 59     X1stFlrSF SalePrice     10    6246.913   0.005 5958        0
+## 60     X2ndFlrSF SalePrice      5    3005.856   0.000 2648        0
 ## 61  LowQualFinSF SalePrice      1    1614.322   0.000  662        0
 ## 62     GrLivArea SalePrice     10    6464.862   0.000 5958        0
 ## 63  TotRmsAbvGrd SalePrice      6    3975.752   0.000 3310        0
@@ -389,7 +529,7 @@ ExpCatStat(dataset,Target="SalePrice")
 ## 66    WoodDeckSF SalePrice      5    2986.487   0.000 2648        0
 ## 67   OpenPorchSF SalePrice      6    3771.010   0.000 3310        0
 ## 68 EnclosedPorch SalePrice      2     555.525   0.999  662        0
-## 69     3SsnPorch SalePrice      1    1614.322   0.000  662        0
+## 69    X3SsnPorch SalePrice      1    1614.322   0.000  662        0
 ## 70   ScreenPorch SalePrice      1    1614.322   0.000  662        0
 ## 71       MiscVal SalePrice      1    1614.322   0.000  662        0
 ## 72        MoSold SalePrice      8    4689.292   0.281 4634        0
@@ -472,9 +612,6 @@ ExpCatStat(dataset,Target="SalePrice")
 
 Filter to let only varibles with some predictive power
 
-
-
-### Categorical variables
 
 # Referencias
 
