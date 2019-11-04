@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Dataset
 
 Import the dataset first.
-```{r cars}
+```{r cars, echo=FALSE}
 library(readr)
 dataset <- read_csv("dataset.csv")
 
@@ -61,7 +61,7 @@ missing_report <- dataset %>%
 missing_report
 ```
 
-The first four features listed above, have more than 80% of missing values. I proceed to ignore that features. TODO tell why
+The first four features listed above, have more than 80% of missing values. I proceed to ignore that features because I find it hard to reconstruct them (imputation) with few data.
 
 The columns I'm going to drop are:
 ```{r}
@@ -70,18 +70,47 @@ drop_columns <- as.character(missing_report$feature[1:4])
 drop_columns
 ```
 
+I drop the columns from the dataset
+
 ```{r}
 dataset <- dataset %>% 
   select(-one_of(drop_columns)) 
 ```
 
-Our dataset has left now four columns/variables, 
+Our dataset has left now four columns/variables, and now we have `r ncol(dataset)` columns.
+
+
+## Valid variable names
+
+Function make names convert columns names to valid variable names. There are some functions that convert the column name (a string) as a variable, so we want to avoid 
+sintax errors later.
 
 ```{r}
-#colnames(dataset)
-ncol(dataset)
+new.names <- make.names(colnames(dataset))
 ```
 
+
+What are the names that where replaced ?
+```{r}
+
+colnames(dataset)[!new.names %in% colnames(dataset)]
+```
+
+We can see that area some variables names which start with a number. 
+
+So the new names are:
+
+```{r}
+new.names
+```
+
+The columns names 3SsnPorch, 1stFlrSF, 2ndFlrSF where replaced by X3SsnPorch, X1stFlrSF, X2ndFlrSF.
+
+So, we renamed the columns of our dataset.
+
+```{r}
+colnames(dataset) <- new.names
+```
 
 ## Correlation 
 
@@ -91,7 +120,7 @@ I would like to know if we have highly correlated features related with Sales Pr
 
 ```{r}
 num_dataset <- dataset %>% 
-  select_if( is.numeric)
+  select_if( is.numeric) %>% scale()
 
 plot_correlation(num_dataset, cor_args = list("use" = "pairwise.complete.obs"))
 ```
@@ -108,6 +137,35 @@ cor(num_dataset) %>% # calculate correlations using Pearson
 
 ```
 
+SalePrice and OverallQual
+
+```{r}
+plot(dataset$OverallQual,dataset$SalePrice)
+```
+
+### SmartEDA package
+
+```{r,echo=FALSE}
+report_name <- "EDA_report_1.html"
+```
+
+The following line create a complited EDA report for the dataset. It took a while to run in a PC celeron computer. The report is saved as `r print(report_name)`
+
+```{r, eval=FALSE}
+library(SmartEDA)
+library (ggthemes)
+ExpReport(dataset,Target = "SalePrice",op_file=report_name,Rc="continuous",sc=2,sn=2)
+```
+```{r}
+library(SmartEDA)
+ExpData(dataset,type=2)
+```
+```{r}
+ExpStat(dataset)
+```
+
+
+### Categorical variables
 Analysis of predictivity power of categorical variables over SalePrice column.
 
 
@@ -121,9 +179,6 @@ Filter to let only varibles with some predictive power
 ```{r}
 
 ```
-
-### Categorical variables
-
 # Referencias
 
 Leer sobre correlacion https://medium.com/@outside2SDs/an-overview-of-correlation-measures-between-categorical-and-continuous-variables-4c7f85610365
