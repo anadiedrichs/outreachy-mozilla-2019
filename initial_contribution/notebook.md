@@ -353,7 +353,7 @@ plot(dataset$OverallQual,dataset$SalePrice)
 
 
 
-The following line create a complited EDA report for the dataset. It took a while to run in a PC celeron computer. The report is saved as 
+The following line create a complited EDA report for the dataset. It took a while to run in a PC celeron computer. The report is saved as EDA_report_1.html
 
 
 ```r

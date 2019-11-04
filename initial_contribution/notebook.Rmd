@@ -149,7 +149,7 @@ plot(dataset$OverallQual,dataset$SalePrice)
 report_name <- "EDA_report_1.html"
 ```
 
-The following line create a complited EDA report for the dataset. It took a while to run in a PC celeron computer. The report is saved as `r print(report_name)`
+The following line create a complited EDA report for the dataset. It took a while to run in a PC celeron computer. The report is saved as `r report_name`
 
 ```{r, eval=FALSE}
 library(SmartEDA)
