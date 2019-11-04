@@ -160,9 +160,7 @@ ExpReport(dataset,Target = "SalePrice",op_file=report_name,Rc="continuous",sc=2,
 library(SmartEDA)
 ExpData(dataset,type=2)
 ```
-```{r}
-ExpStat(dataset)
-```
+
 
 
 ### Categorical variables
