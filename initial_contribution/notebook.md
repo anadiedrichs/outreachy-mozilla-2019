@@ -22,26 +22,26 @@ dataset <- read_csv("dataset.csv")
 ## Parsed with column specification:
 ## cols(
 ##   .default = col_character(),
-##   Id = col_double(),
-##   MSSubClass = col_double(),
-##   LotFrontage = col_double(),
-##   LotArea = col_double(),
-##   OverallQual = col_double(),
-##   OverallCond = col_double(),
-##   YearBuilt = col_double(),
-##   YearRemodAdd = col_double(),
-##   MasVnrArea = col_double(),
-##   BsmtFinSF1 = col_double(),
-##   BsmtFinSF2 = col_double(),
-##   BsmtUnfSF = col_double(),
-##   TotalBsmtSF = col_double(),
-##   `1stFlrSF` = col_double(),
-##   `2ndFlrSF` = col_double(),
-##   LowQualFinSF = col_double(),
-##   GrLivArea = col_double(),
-##   BsmtFullBath = col_double(),
-##   BsmtHalfBath = col_double(),
-##   FullBath = col_double()
+##   Id = col_integer(),
+##   MSSubClass = col_integer(),
+##   LotFrontage = col_integer(),
+##   LotArea = col_integer(),
+##   OverallQual = col_integer(),
+##   OverallCond = col_integer(),
+##   YearBuilt = col_integer(),
+##   YearRemodAdd = col_integer(),
+##   MasVnrArea = col_integer(),
+##   BsmtFinSF1 = col_integer(),
+##   BsmtFinSF2 = col_integer(),
+##   BsmtUnfSF = col_integer(),
+##   TotalBsmtSF = col_integer(),
+##   `1stFlrSF` = col_integer(),
+##   `2ndFlrSF` = col_integer(),
+##   LowQualFinSF = col_integer(),
+##   GrLivArea = col_integer(),
+##   BsmtFullBath = col_integer(),
+##   BsmtHalfBath = col_integer(),
+##   FullBath = col_integer()
 ##   # ... with 18 more columns
 ## )
 ```
@@ -62,7 +62,7 @@ head(dataset)
 ```
 ## # A tibble: 6 x 81
 ##      Id MSSubClass MSZoning LotFrontage LotArea Street Alley LotShape
-##   <dbl>      <dbl> <chr>          <dbl>   <dbl> <chr>  <chr> <chr>   
+##   <int>      <int> <chr>          <int>   <int> <chr>  <chr> <chr>   
 ## 1     1         60 RL                65    8450 Pave   <NA>  Reg     
 ## 2     2         20 RL                80    9600 Pave   <NA>  Reg     
 ## 3     3         60 RL                68   11250 Pave   <NA>  IR1     
@@ -72,26 +72,26 @@ head(dataset)
 ## # … with 73 more variables: LandContour <chr>, Utilities <chr>,
 ## #   LotConfig <chr>, LandSlope <chr>, Neighborhood <chr>,
 ## #   Condition1 <chr>, Condition2 <chr>, BldgType <chr>, HouseStyle <chr>,
-## #   OverallQual <dbl>, OverallCond <dbl>, YearBuilt <dbl>,
-## #   YearRemodAdd <dbl>, RoofStyle <chr>, RoofMatl <chr>,
+## #   OverallQual <int>, OverallCond <int>, YearBuilt <int>,
+## #   YearRemodAdd <int>, RoofStyle <chr>, RoofMatl <chr>,
 ## #   Exterior1st <chr>, Exterior2nd <chr>, MasVnrType <chr>,
-## #   MasVnrArea <dbl>, ExterQual <chr>, ExterCond <chr>, Foundation <chr>,
+## #   MasVnrArea <int>, ExterQual <chr>, ExterCond <chr>, Foundation <chr>,
 ## #   BsmtQual <chr>, BsmtCond <chr>, BsmtExposure <chr>,
-## #   BsmtFinType1 <chr>, BsmtFinSF1 <dbl>, BsmtFinType2 <chr>,
-## #   BsmtFinSF2 <dbl>, BsmtUnfSF <dbl>, TotalBsmtSF <dbl>, Heating <chr>,
-## #   HeatingQC <chr>, CentralAir <chr>, Electrical <chr>, `1stFlrSF` <dbl>,
-## #   `2ndFlrSF` <dbl>, LowQualFinSF <dbl>, GrLivArea <dbl>,
-## #   BsmtFullBath <dbl>, BsmtHalfBath <dbl>, FullBath <dbl>,
-## #   HalfBath <dbl>, BedroomAbvGr <dbl>, KitchenAbvGr <dbl>,
-## #   KitchenQual <chr>, TotRmsAbvGrd <dbl>, Functional <chr>,
-## #   Fireplaces <dbl>, FireplaceQu <chr>, GarageType <chr>,
-## #   GarageYrBlt <dbl>, GarageFinish <chr>, GarageCars <dbl>,
-## #   GarageArea <dbl>, GarageQual <chr>, GarageCond <chr>,
-## #   PavedDrive <chr>, WoodDeckSF <dbl>, OpenPorchSF <dbl>,
-## #   EnclosedPorch <dbl>, `3SsnPorch` <dbl>, ScreenPorch <dbl>,
-## #   PoolArea <dbl>, PoolQC <chr>, Fence <chr>, MiscFeature <chr>,
-## #   MiscVal <dbl>, MoSold <dbl>, YrSold <dbl>, SaleType <chr>,
-## #   SaleCondition <chr>, SalePrice <dbl>
+## #   BsmtFinType1 <chr>, BsmtFinSF1 <int>, BsmtFinType2 <chr>,
+## #   BsmtFinSF2 <int>, BsmtUnfSF <int>, TotalBsmtSF <int>, Heating <chr>,
+## #   HeatingQC <chr>, CentralAir <chr>, Electrical <chr>, `1stFlrSF` <int>,
+## #   `2ndFlrSF` <int>, LowQualFinSF <int>, GrLivArea <int>,
+## #   BsmtFullBath <int>, BsmtHalfBath <int>, FullBath <int>,
+## #   HalfBath <int>, BedroomAbvGr <int>, KitchenAbvGr <int>,
+## #   KitchenQual <chr>, TotRmsAbvGrd <int>, Functional <chr>,
+## #   Fireplaces <int>, FireplaceQu <chr>, GarageType <chr>,
+## #   GarageYrBlt <int>, GarageFinish <chr>, GarageCars <int>,
+## #   GarageArea <int>, GarageQual <chr>, GarageCond <chr>,
+## #   PavedDrive <chr>, WoodDeckSF <int>, OpenPorchSF <int>,
+## #   EnclosedPorch <int>, `3SsnPorch` <int>, ScreenPorch <int>,
+## #   PoolArea <int>, PoolQC <chr>, Fence <chr>, MiscFeature <chr>,
+## #   MiscVal <int>, MoSold <int>, YrSold <int>, SaleType <chr>,
+## #   SaleCondition <chr>, SalePrice <int>
 ```
 
 The column Id is not a variable for the problem, so I proceed to deleted it.
@@ -104,17 +104,6 @@ dataset <- dataset[-1]
 
 ```r
 library(DataExplorer)
-```
-
-```
-## Registered S3 methods overwritten by 'ggplot2':
-##   method         from 
-##   [.quosures     rlang
-##   c.quosures     rlang
-##   print.quosures rlang
-```
-
-```r
 introduce(dataset) 
 ```
 
@@ -218,7 +207,7 @@ dataset <- dataset %>%
   select(-one_of(drop_columns)) 
 ```
 
-Our dataset has left now four columns/varialbes, 
+Our dataset has left now four columns/variables, 
 
 
 ```r
@@ -277,23 +266,17 @@ library(tidyverse)
 ```
 
 ```
-## Registered S3 method overwritten by 'rvest':
-##   method            from
-##   read_xml.response xml2
+## ── Attaching packages ──────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
 ```
 
 ```
-## ── Attaching packages ────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+## ✔ ggplot2 3.1.0          ✔ purrr   0.3.2     
+## ✔ tibble  2.1.3          ✔ stringr 1.3.1     
+## ✔ tidyr   1.0.0.9000     ✔ forcats 0.3.0
 ```
 
 ```
-## ✔ ggplot2 3.1.1     ✔ purrr   0.3.2
-## ✔ tibble  2.1.1     ✔ stringr 1.4.0
-## ✔ tidyr   0.8.3     ✔ forcats 0.4.0
-```
-
-```
-## ── Conflicts ───────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ── Conflicts ─────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
 ```
@@ -333,15 +316,6 @@ Analysis of predictivity power of categorical variables over SalePrice column.
 
 ```r
 library(SmartEDA)
-```
-
-```
-## Registered S3 method overwritten by 'GGally':
-##   method from   
-##   +.gg   ggplot2
-```
-
-```r
 ExpCatStat(dataset,Target="SalePrice")
 ```
 

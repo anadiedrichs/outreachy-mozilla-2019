@@ -36,14 +36,16 @@ dataset <- dataset[-1]
 
 ```{r}
 library(DataExplorer)
-introduce(dataset) 
+t(introduce(dataset) )
 ```
 
 Some insights:
 
 * We have some missing values
 * The dataset has a mix of categorical and numerical variables
-* We don't have 
+* We don't have completed rows, where all the values for the same row are not NULL or NaN or not missing.
+
+As a first step, we are going to analyze the missing values.
 
 ### Missing values 
 
@@ -61,6 +63,7 @@ missing_report
 
 The first four features listed above, have more than 80% of missing values. I proceed to ignore that features. TODO tell why
 
+The columns I'm going to drop are:
 ```{r}
 drop_columns <- as.character(missing_report$feature[1:4])
 
@@ -72,17 +75,17 @@ dataset <- dataset %>%
   select(-one_of(drop_columns)) 
 ```
 
-Our dataset has left now four columns/varialbes, 
+Our dataset has left now four columns/variables, 
 
 ```{r}
-colnames(dataset)
+#colnames(dataset)
 ncol(dataset)
 ```
 
 
 ## Correlation 
 
-I would like to know if we have highly correlated features
+I would like to know if we have highly correlated features related with Sales Price.
 
 ### Continuous variables
 
